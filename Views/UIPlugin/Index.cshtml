@@ -6,33 +6,72 @@
 @{
     ViewData.SetActivePage(PluginNavPages.Index, "B2P Central plugin");
 }
-<h1>@ViewData["Title"]</h1>
-<br/>
-<p>Get P2P bitcoin buy offers from <a href="https://www.b2p-central.com" target="b2p">B2P Central</a>, according to your onchain and lightning wallets balances and the store's default currency.</p>
-<p>
-    <a href="https://www.b2p-central.com" target="b2p">
-        <img src="/Resources/img/B2Plogo.jpg"/>
-    </a>
-</p>
+<table><tr>
+        <td>
+            <a href="https://www.b2p-central.com" target="b2p">
+                <img src="/Resources/img/B2Plogo.jpg" />
+            </a>
+        </td>
+        <td width="20" />
+        <td>
+            <h2>@ViewData["Title"]</h2>
+            <br />
+            <p>
+                Get P2P bitcoin buy offers from <a href="https://www.b2p-central.com" target="b2p">B2P Central</a>, according to your onchain and lightning wallets balances and the store's default currency.
+             </p>
+        </td>
+</tr></table>
+<br />
+
+<partial name="_StatusMessage" />
 
 <div permission="@Policies.CanModifyStoreSettings">
-    <h3>Configure</h3>
+    <br />
+    <h4>Configuration</h4>
     <p>
        First, you need to get a B2P Central API key <a href="https://getapi.b2p-central.com" target="b2pApi">here</a>.
     </p>
-        <div class="form-group">
-            <label asp-for="ApiKey" class="form-label"></label>
-        <input asp-for="ApiKey" data-fill="port" class="form-control" />
-        <span asp-validation-for="ApiKey" class="text-danger"></span>
-        </div>
+    <form method="post" autocomplete="off">
+        <input asp-for="ProvidersString" type="hidden"/>
+        <table class="table table-sm mt-0 mx-0">
+            <tr>
+                <td width="100">
+                    <label asp-for="ApiKey" class="form-label"></label>
+                </td>
+                <td width="400" d class="border-0 ps-0 align-middle">
+                    <input asp-for="ApiKey" data-fill="port" class="form-control" />
+                    <span asp-validation-for="ApiKey" class="text-danger"></span>
+                </td>
+                <td width="20" />
+                <td>
+                    <button id="SaveButton" type="submit" class="btn btn-primary" value="Save" name="Command">Save</button>
+                </td>
+                @if (!string.IsNullOrEmpty(Model.ApiKey))
+                {
+                    <td>
+                        <button class="btn btn-secondary mt-2" value="Test" name="Command">Test</button>
+                    </td>
+                }
+            </tr>
+        </table>
+    </form>
 </div>
 
 <div permission="@Policies.CanViewStoreSettings">
-
-<ul class="list-group">
-    @foreach (var item in Model.Providers)
+    <br />
+    @if (string.IsNullOrEmpty(Model.ApiKey))
     {
-        <li class="list-group-item">@item.ToString()</li>
+        <p>
+            <i>B2P settings not set for this store...</i>
+        </p>
+    } else
+    {
+        <ul class="list-group">
+            @foreach (var item in Model.Providers)
+            {
+                <li class="list-group-item">@item.ToString()</li>
+            }
+        </ul>
+
     }
-</ul>
 </div>
