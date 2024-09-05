@@ -1,0 +1,38 @@
+@using BTCPayServer.Abstractions.Extensions
+@using BTCPayServer.Plugins.B2PCentral.Views
+@using BTCPayServer.Client
+
+@model BTCPayServer.Plugins.B2PCentral.Data.B2PSettings
+@{
+    ViewData.SetActivePage(PluginNavPages.Index, "B2P Central plugin");
+}
+<h1>@ViewData["Title"]</h1>
+<br/>
+<p>Get P2P bitcoin buy offers from <a href="https://www.b2p-central.com" target="b2p">B2P Central</a>, according to your onchain and lightning wallets balances and the store's default currency.</p>
+<p>
+    <a href="https://www.b2p-central.com" target="b2p">
+        <img src="/Resources/img/B2Plogo.jpg"/>
+    </a>
+</p>
+
+<div permission="@Policies.CanModifyStoreSettings">
+    <h3>Configure</h3>
+    <p>
+       First, you need to get a B2P Central API key <a href="https://getapi.b2p-central.com" target="b2pApi">here</a>.
+    </p>
+        <div class="form-group">
+            <label asp-for="ApiKey" class="form-label"></label>
+        <input asp-for="ApiKey" data-fill="port" class="form-control" />
+        <span asp-validation-for="ApiKey" class="text-danger"></span>
+        </div>
+</div>
+
+<div permission="@Policies.CanViewStoreSettings">
+
+<ul class="list-group">
+    @foreach (var item in Model.Providers)
+    {
+        <li class="list-group-item">@item.ToString()</li>
+    }
+</ul>
+</div>

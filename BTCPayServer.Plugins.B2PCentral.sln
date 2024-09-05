@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BTCPayServer.Plugins.B2PCentral", "BTCPayServer.Plugins.B2PCentral.csproj", "{4162EA7E-F57B-4CE0-8086-97493BBAADD8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Altcoins-Debug|Any CPU = Altcoins-Debug|Any CPU
+		Altcoins-Release|Any CPU = Altcoins-Release|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4162EA7E-F57B-4CE0-8086-97493BBAADD8}.Altcoins-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4162EA7E-F57B-4CE0-8086-97493BBAADD8}.Altcoins-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4162EA7E-F57B-4CE0-8086-97493BBAADD8}.Altcoins-Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4162EA7E-F57B-4CE0-8086-97493BBAADD8}.Altcoins-Release|Any CPU.Build.0 = Release|Any CPU
+		{4162EA7E-F57B-4CE0-8086-97493BBAADD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4162EA7E-F57B-4CE0-8086-97493BBAADD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4162EA7E-F57B-4CE0-8086-97493BBAADD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4162EA7E-F57B-4CE0-8086-97493BBAADD8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {20865F37-75EB-4648-AE92-3A2D3C2D0B31}
+	EndGlobalSection
+EndGlobal
