@@ -1,0 +1,1 @@
+# BTCPayServer.Plugins.B2PCentral
