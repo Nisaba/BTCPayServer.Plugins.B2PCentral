@@ -2,6 +2,8 @@
 @using BTCPayServer.Plugins.B2PCentral.Views
 @using BTCPayServer.Client
 
+@inject BTCPayServer.Plugins.B2PCentral.Services.B2PCentralPluginService B2PCentralPluginService
+
 @model BTCPayServer.Plugins.B2PCentral.Data.B2PSettings
 @{
     ViewData.SetActivePage(PluginNavPages.Index, "B2P Central plugin");
@@ -66,12 +68,24 @@
         </p>
     } else
     {
-        <ul class="list-group">
-            @foreach (var item in Model.Providers)
-            {
-                <li class="list-group-item">@item.ToString()</li>
-            }
-        </ul>
+        var walletConfig = await B2PCentralPluginService.GetBalances(Model.StoreId, Context.Request.PathBase);
+        @if (walletConfig.OnChainEnabled)
+        {
+            <p>On Chain: @walletConfig.OnChainBalance BTC  - @walletConfig.OnChainFiatBalance @walletConfig.FiatCurrency</p>
+        }
+        else
+        {
+            <p>On Chain wallet not configured</p>
+        }
+
+        @if (walletConfig.OffChainEnabled)
+        {
+            <p>Off Chain: @walletConfig.OffChainBalance BTC  - @walletConfig.OffChainFiatBalance @walletConfig.FiatCurrency</p>
+        }
+        else
+        {
+            <p>Off Chain wallet not configured</p>
+        }
 
     }
 </div>
