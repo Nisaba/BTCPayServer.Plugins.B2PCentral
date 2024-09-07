@@ -1,4 +1,4 @@
-using B2P_API.Models;
+using BTCPayServer.Plugins.B2PCentral.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

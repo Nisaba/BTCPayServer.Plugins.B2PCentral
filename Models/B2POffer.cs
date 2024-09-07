@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace B2P_API.Models
+namespace BTCPayServer.Plugins.B2PCentral.Models
 {
     public struct B2POffer
     {

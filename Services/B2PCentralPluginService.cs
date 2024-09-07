@@ -1,4 +1,3 @@
-using B2P_API.Models;
 using BTCPayServer.Configuration;
 using BTCPayServer.Data;
 using BTCPayServer.Lightning;

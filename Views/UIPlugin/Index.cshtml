@@ -1,6 +1,7 @@
 @using BTCPayServer.Abstractions.Extensions
 @using BTCPayServer.Plugins.B2PCentral.Views
 @using BTCPayServer.Client
+@using BTCPayServer.Plugins.B2PCentral.Models
 
 @inject BTCPayServer.Plugins.B2PCentral.Services.B2PCentralPluginService B2PCentralPluginService
 
@@ -69,23 +70,107 @@
     } else
     {
         var walletConfig = await B2PCentralPluginService.GetBalances(Model.StoreId, Context.Request.PathBase);
+        <h4>On Chain</h4>
         @if (walletConfig.OnChainEnabled)
         {
-            <p>On Chain: @walletConfig.OnChainBalance BTC  - @walletConfig.OnChainFiatBalance @walletConfig.FiatCurrency</p>
+            <p><b>Balance</b>: @walletConfig.OnChainBalance BTC  - @walletConfig.OnChainFiatBalance @walletConfig.FiatCurrency</p>
         }
         else
         {
             <p>On Chain wallet not configured</p>
         }
-
+        <table>
+            <tr>
+            @if (walletConfig.OnChainEnabled)
+            {
+                @if (walletConfig.OnChainBalance == 0) {
+                    <p>No bitcoins available for sale</p>
+                } else {
+                     <b>Select providers:</b><br/>
+                     <table><tr>
+                        <td>
+                            HodlHodl &nbsp;
+                            <input type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.HodlHodl)" />
+                        </td><td width="15" />
+                        <td>
+                            Paxful &nbsp;
+                            <input type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.Paxful)" />
+                        </td><td width="15" />
+                        <td>
+                            LocalCoinSwap &nbsp;
+                            <input type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.LocalCoinSwap)" />
+                        </td><td width="15" />
+                        <td>
+                            Peach &nbsp;
+                            <input type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.Peach)" />
+                        </td>
+                     </tr></table>
+                    <br />
+                    <table>
+                        <td>
+                            Percent to sale:&nbsp;
+                                <input id="percentOnChain" type="number" max="100" value="100" onchange="document.getElementById('lblOnChainSale').textContent =parseInt((percentOnChain.value*@walletConfig.OnChainFiatBalance)/100)" />
+                        </td><td width="25" />                        
+                        <td>
+                            <label id="lblOnChainSale">@walletConfig.OnChainBalance</label>&nbsp; @walletConfig.FiatCurrency
+                        </td><td width="25" /> 
+                        <td><button class="btn btn-primary">Search</button></td>
+                    </table>
+                }
+            }
+            else
+            {
+                <td>On Chain wallet not configured</td>
+            }
+            </tr>
+        </table>
+        <br />
+        <h4>Lightning</h4>
         @if (walletConfig.OffChainEnabled)
         {
-            <p>Off Chain: @walletConfig.OffChainBalance BTC  - @walletConfig.OffChainFiatBalance @walletConfig.FiatCurrency</p>
+            <p><b>Balance</b>: @walletConfig.OffChainBalance BTC  - @walletConfig.OffChainFiatBalance @walletConfig.FiatCurrency</p>
         }
         else
         {
-            <p>Off Chain wallet not configured</p>
+            <p>Lightning not configured</p>
+            @if (walletConfig.OffChainBalance == 0)
+            {
+                <p>No bitcoins available for sale</p>
+            }
+            else
+            {
+                <b>Select providers:</b>
+                <br />
+                <table>
+                    <tr>
+                        <td>
+                            LNp2pBot &nbsp;
+                            <input type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.LNp2pBot)" />
+                        </td>
+                        <td width="15" />
+                        <td>
+                            RoboSats &nbsp;
+                            <input type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.RoboSats)" />
+                        </td>
+                    </tr>
+                </table>
+                <br/>
+                <table>
+                    <tr>
+                        <td>
+                            Percent to sale:&nbsp;
+                            <input id="percentLightning" type="number" max="100" value="100" onchange="document.getElementById('lblLightningToSale').textContent=parseInt((percentLightning.value*@walletConfig.OffChainFiatBalance)/100)" />
+                        </td><td width="25" />                        
+                        <td>
+                            <label id="lblLightningToSale">@walletConfig.OffChainBalance</label>&nbsp;@walletConfig.FiatCurrency
+                        </td><td width="25" /> 
+                        <td><button class="btn btn-primary">Search</button></td>
+                    </tr>
+                </table>
+            }
+
         }
 
     }
+
 </div>
