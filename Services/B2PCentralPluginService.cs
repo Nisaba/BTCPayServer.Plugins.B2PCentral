@@ -171,10 +171,10 @@ public class B2PCentralPluginService
                         sRep = await rep.Content.ReadAsStringAsync();
                     }
                     dynamic JsonRep = JsonConvert.DeserializeObject<dynamic>(sRep);
-                    var rate = decimal.Parse(JsonRep.rate);
+                    cnfg.Rate = decimal.Parse(JsonRep.rate);
 
-                    cnfg.OffChainFiatBalance = rate * cnfg.OffChainBalance;
-                    cnfg.OnChainFiatBalance = rate * cnfg.OnChainBalance;
+                    cnfg.OffChainFiatBalance = cnfg.Rate * cnfg.OffChainBalance;
+                    cnfg.OnChainFiatBalance = cnfg.Rate * cnfg.OnChainBalance;
 
                 }
 
@@ -193,7 +193,7 @@ public class B2PCentralPluginService
 
     }
 
-    private async Task<List<B2POffer>> GetOffersListAsync(OffersRequest req, string key)
+    public async Task<List<B2POffer>> GetOffersListAsync(OffersRequest req, string key)
     {
         try
         {

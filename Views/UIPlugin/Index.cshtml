@@ -9,6 +9,20 @@
 @{
     ViewData.SetActivePage(PluginNavPages.Index, "B2P Central plugin");
 }
+
+<script type="text/javascript">
+    function GetPartial(reqData, container) {
+        $.ajax({
+            url: '@Url.Action("GetPartialB2PResult", "UIPlugin")',
+            type: 'POST',
+            data: reqData,
+            success: function(result) {
+                $(container).html(result);
+            },
+        });
+    });
+</script>
+
 <table><tr>
         <td>
             <a href="https://www.b2p-central.com" target="b2p">
@@ -79,52 +93,66 @@
         {
             <p>On Chain wallet not configured</p>
         }
-        <table>
-            <tr>
-            @if (walletConfig.OnChainEnabled)
-            {
-                @if (walletConfig.OnChainBalance == 0) {
-                    <p>No bitcoins available for sale</p>
-                } else {
-                     <b>Select providers:</b><br/>
-                     <table><tr>
-                        <td>
-                            HodlHodl &nbsp;
-                            <input type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.HodlHodl)" />
-                        </td><td width="15" />
-                        <td>
-                            Paxful &nbsp;
-                            <input type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.Paxful)" />
-                        </td><td width="15" />
-                        <td>
-                            LocalCoinSwap &nbsp;
-                            <input type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.LocalCoinSwap)" />
-                        </td><td width="15" />
-                        <td>
-                            Peach &nbsp;
-                            <input type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.Peach)" />
-                        </td>
-                     </tr></table>
-                    <br />
-                    <table>
-                        <td>
-                            Percent to sale:&nbsp;
-                                <input id="percentOnChain" type="number" max="100" value="100" onchange="document.getElementById('lblOnChainSale').textContent =parseInt((percentOnChain.value*@walletConfig.OnChainFiatBalance)/100)" />
-                        </td><td width="25" />                        
-                        <td>
-                            <label id="lblOnChainSale">@walletConfig.OnChainBalance</label>&nbsp; @walletConfig.FiatCurrency
-                        </td><td width="25" /> 
-                        <td><button class="btn btn-primary">Search</button></td>
-                    </table>
-                }
-            }
-            else
-            {
-                <td>On Chain wallet not configured</td>
-            }
-            </tr>
-        </table>
+
+        @if (walletConfig.OnChainBalance == 0) {
+            <p>No bitcoins available for sale</p>
+        } else {
+            <b>Select providers:</b><br/>
+            <table><tr>
+            <td>
+                HodlHodl &nbsp;
+                <input id="chkHodl" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.HodlHodl)" />
+            </td><td width="15" />
+            <td>
+                Paxful &nbsp;
+                <input id="chkPxf" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.Paxful)" />
+            </td><td width="15" />
+            <td>
+                LocalCoinSwap &nbsp;
+                <input id="chkLocalSw" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.LocalCoinSwap)" />
+            </td><td width="15" />
+            <td>
+                Peach &nbsp;
+                <input id = "chkPeach" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.Peach)" />
+            </td>
+            </tr></table>
+            <br />
+            <table>
+                <td>
+                    Percent to sale:&nbsp;
+                        <input id="percentOnChain" type="number" max="100" value="100" onchange="document.getElementById('lblOnChainSale').textContent =parseInt((percentOnChain.value*@walletConfig.OnChainFiatBalance)/100)" />
+                </td><td width="25" />                        
+                <td>
+                    <label id="lblOnChainSale">@walletConfig.OnChainBalance</label>&nbsp; @walletConfig.FiatCurrency
+                </td><td width="25" /> 
+                <td><button id="btOnChainSearch" class="btn btn-primary">Search</button></td>
+            </table><br />
+            <div id="container-B2pOnChain"></div>
+        }
+
+        @if (walletConfig.OnChainBalance > 0)
+        {
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    $("#btOnChainSearch").click(function () {
+                        var tbl = [];
+                        if (document.querySelector('#chkHodl').checked) tbl.push(@ProvidersEnum.HodlHodl);
+                        if (document.querySelector('#chkPxf').checked) tbl.push(@ProvidersEnum.Paxful);
+                        if (document.querySelector('#chkLocalSw').checked) tbl.push(@ProvidersEnum.LocalCoinSwap);
+                        if (document.querySelector('#chkPeach').checked) tbl.push(@ProvidersEnum.Peach);
+                        if (tbl.length == 0) return;
+
+                        const data = {
+                            Rate: @walletConfig.Rate, ApiKey: '@Model.ApiKey', CurrencyCode: '@walletConfig.FiatCurrency',
+                            Amount: @walletConfig.OnChainBalance, Providers: tbl
+                        };
+                        GetPartial(data, "container-B2pOnChain");
+                    });
+                });
+            </script>
+        }
         <br />
+
         <h4>Lightning</h4>
         @if (walletConfig.OffChainEnabled)
         {
@@ -133,42 +161,67 @@
         else
         {
             <p>Lightning not configured</p>
-            @if (walletConfig.OffChainBalance == 0)
-            {
-                <p>No bitcoins available for sale</p>
-            }
-            else
-            {
-                <b>Select providers:</b>
-                <br />
-                <table>
-                    <tr>
-                        <td>
-                            LNp2pBot &nbsp;
-                            <input type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.LNp2pBot)" />
-                        </td>
-                        <td width="15" />
-                        <td>
-                            RoboSats &nbsp;
-                            <input type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.RoboSats)" />
-                        </td>
-                    </tr>
-                </table>
-                <br/>
-                <table>
-                    <tr>
-                        <td>
-                            Percent to sale:&nbsp;
-                            <input id="percentLightning" type="number" max="100" value="100" onchange="document.getElementById('lblLightningToSale').textContent=parseInt((percentLightning.value*@walletConfig.OffChainFiatBalance)/100)" />
-                        </td><td width="25" />                        
-                        <td>
-                            <label id="lblLightningToSale">@walletConfig.OffChainBalance</label>&nbsp;@walletConfig.FiatCurrency
-                        </td><td width="25" /> 
-                        <td><button class="btn btn-primary">Search</button></td>
-                    </tr>
-                </table>
-            }
+        }
 
+        @if (walletConfig.OffChainBalance == 0)
+        {
+            <p>No bitcoins available for sale</p>
+        }
+        else
+        {
+            <b>Select providers:</b><br />
+            <table>
+                <tr>
+                    <td>
+                        LNp2pBot &nbsp;
+                        <input id="chkLNp2p" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.LNp2pBot)" />
+                    </td>
+                    <td width="15" />
+                    <td>
+                        RoboSats &nbsp;
+                        <input id="chkRbs" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.RoboSats)" />
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <table>
+                <tr>
+                    <td>
+                        Percent to sale:&nbsp;
+                        <input id="percentLightning" type="number" max="100" value="100" onchange="document.getElementById('lblLightningToSale').textContent=parseInt((percentLightning.value*@walletConfig.OffChainFiatBalance)/100)" />
+                    </td>
+                    <td width="25" />
+                    <td>
+                        <label id="lblLightningToSale">@walletConfig.OffChainBalance</label>&nbsp;@walletConfig.FiatCurrency
+                    </td>
+                    <td width="25" />
+                    <td><button id="btLightningSearch" class="btn btn-primary">Search</button></td>
+                </tr>
+            </table>
+
+            <br />
+            <div id="container-B2pLightning"></div>
+        }
+
+
+        @if (walletConfig.OffChainBalance > 0)
+        {
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    $("#btLightningSearch").click(function () {
+                        var tbl = [];
+                        if (document.querySelector('#chkLNp2p').checked) tbl.push(@ProvidersEnum.LNp2pBot);
+                        if (document.querySelector('#chkRbs').checked) tbl.push(@ProvidersEnum.RoboSats);
+                        if (tbl.length == 0) return;
+
+                        const data = {
+                            Rate: @walletConfig.Rate, ApiKey: '@Model.ApiKey', CurrencyCode: '@walletConfig.FiatCurrency',
+                            Amount: @walletConfig.OffChainBalance, Providers: tbl
+                        };
+                        GetPartial(data, "container-B2pLightning");
+                    });
+                });
+            </script>
         }
 
     }

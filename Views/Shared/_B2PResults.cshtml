@@ -1,0 +1,48 @@
+@using BTCPayServer.Services
+@model BTCPayServer.Plugins.B2PCentral.Models.B2PResult
+@inject DisplayFormatter DisplayFormatter
+
+@if (!string.IsNullOrEmpty(Model.ErrorMsg))
+{
+    <p><b>Error: </b>@Model.ErrorMsg</p>
+}
+@if (Model.Offers.Any())
+{
+    <div class="table-responsive">
+        <table id="invoices" class="table table-hover mass-action">
+            <thead class="mass-action-head">
+                <tr>
+                    <th class="text-nowrap">Id</th>
+                    <th class="text-nowrap">Provider</th>
+                    <th class="text-nowrap">Country</th>
+                    <th class="amount-col">Price</th>
+                    <th class="amount-col">%</th>
+                    <th class="text-nowrap">User</th>
+                    <th class="text-nowrap">Payment</th>
+                    <th class="text-nowrap">NbTrades</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Offers)
+                {
+                    <tr class="mass-action-row">
+                        <td class="text-break align-middle invoiceId-col">
+                            <a href="@item.Url" target="_blank" class="invoice-details-link">@item.ID</a>
+                        </td>
+                        <td class="align-middle">@item.NumProvider.ToString()</td>
+                        <td class="align-middle">@item.CountryCode</td>
+                        <td class="align-middle amount-col">
+                            <span data-sensitive>@DisplayFormatter.Currency((decimal)item.Price, item.CurrencyCode)</span>
+                        </td>
+                        <td class="align-middle amount-col">
+                            <span data-sensitive>@((int)(((decimal)item.Price / Model.Rate) * 100) -100) %</span>
+                        </td>
+                        <td class="align-middle">@string.Join(",", item.PaymentMethods)</td>
+                        <td class="align-middle">@item.UserName</td>
+                        <td class="align-middle">@item.UserNbTrades</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

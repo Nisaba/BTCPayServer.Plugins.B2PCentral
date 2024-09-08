@@ -11,5 +11,7 @@
         public decimal OffChainBalance { get; set; }
         public decimal OffChainFiatBalance { get; set; }
 
+        public decimal Rate { get; set; }
+
     }
 }

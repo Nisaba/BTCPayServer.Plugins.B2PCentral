@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BTCPayServer.Abstractions.Constants;
 using BTCPayServer.Client;
 using BTCPayServer.Plugins.B2PCentral.Data;
+using BTCPayServer.Plugins.B2PCentral.Models;
 using BTCPayServer.Plugins.B2PCentral.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,13 +22,15 @@ public class UIPluginController : Controller
         _PluginService = PluginService;
     }
 
-    // GET
+    [HttpGet]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.Cookie, Policy= Policies.CanViewStoreSettings)]
     public async Task<IActionResult> Index(string storeId)
     {
         return View(await _PluginService.GetStoreSettings(storeId));
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.Cookie, Policy = Policies.CanModifyStoreSettings)]
     public async Task<IActionResult> Index(B2PSettings model, string command)
     {
         if (ModelState.IsValid)
@@ -50,5 +54,28 @@ public class UIPluginController : Controller
             }
         }
         return View("Index", model);
+    }
+
+
+    [HttpPost]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.Cookie, Policy = Policies.CanViewStoreSettings)]
+    public async Task<IActionResult> GetPartialB2PResult([FromBody] B2PRequest req)
+    {
+        var model = new B2PResult { Rate = req.Rate };
+        try
+        {
+            var ofrReq = new OffersRequest
+            {
+                Amount = (uint)req.Amount,
+                CurrencyCode = req.CurrencyCode,
+                IsBuy = false,
+                Providers = req.Providers
+            };
+            model.Offers = await _PluginService.GetOffersListAsync(ofrReq, req.ApiKey);
+        } catch (Exception ex)
+        {
+            model.ErrorMsg = ex.Message;
+        }
+        return PartialView("_B2PResults", model);
     }
 }
