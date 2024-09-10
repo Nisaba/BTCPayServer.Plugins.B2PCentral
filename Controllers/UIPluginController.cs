@@ -59,6 +59,7 @@ public class UIPluginController : Controller
 
     [HttpPost]
     [Authorize(AuthenticationSchemes = AuthenticationSchemes.Cookie, Policy = Policies.CanViewStoreSettings)]
+    [Route("GetPartialB2PResult")]
     public async Task<IActionResult> GetPartialB2PResult([FromBody] B2PRequest req)
     {
         var model = new B2PResult { Rate = req.Rate };

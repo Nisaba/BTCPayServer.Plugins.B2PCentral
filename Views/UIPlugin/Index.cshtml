@@ -12,15 +12,31 @@
 
 <script type="text/javascript">
     function GetPartial(reqData, container) {
+        $(container).html('<div style="display: flex; justify-content: center;"><img src="/Resources/img/Loading_icon.gif"/></div>');
         $.ajax({
-            url: '@Url.Action("GetPartialB2PResult", "UIPlugin")',
+            url: 'b2pcentral/GetPartialB2PResult',
             type: 'POST',
-            data: reqData,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(reqData),
             success: function(result) {
                 $(container).html(result);
             },
+            error: function (xhr, status, error) {
+                $(container).html("Error: " + error + "<br/>" + xhr.responseText);
+            }
         });
-    });
+    }
+    function SwitchTab(switchValue) {
+        if (switchValue === 1) {
+            $("#SectionNav-1").addClass("active").siblings().removeClass("active");
+            $("#tabOnChain").show();
+            $("#tabLightning").hide();
+        } else {
+            $("#SectionNav-2").addClass("active").siblings().removeClass("active");
+            $("#tabOnChain").hide();
+            $("#tabLightning").show();
+        }
+    }
 </script>
 
 <table><tr>
@@ -84,146 +100,154 @@
     } else
     {
         var walletConfig = await B2PCentralPluginService.GetBalances(Model.StoreId, Context.Request.PathBase);
-        <h4>On Chain</h4>
-        @if (walletConfig.OnChainEnabled)
-        {
-            <p><b>Balance</b>: @walletConfig.OnChainBalance BTC  - @walletConfig.OnChainFiatBalance @walletConfig.FiatCurrency</p>
-        }
-        else
-        {
-            <p>On Chain wallet not configured</p>
-        }
 
-        @if (walletConfig.OnChainBalance == 0) {
-            <p>No bitcoins available for sale</p>
-        } else {
-            <b>Select providers:</b><br/>
-            <table><tr>
-            <td>
-                HodlHodl &nbsp;
-                <input id="chkHodl" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.HodlHodl)" />
-            </td><td width="15" />
-            <td>
-                Paxful &nbsp;
-                <input id="chkPxf" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.Paxful)" />
-            </td><td width="15" />
-            <td>
-                LocalCoinSwap &nbsp;
-                <input id="chkLocalSw" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.LocalCoinSwap)" />
-            </td><td width="15" />
-            <td>
-                Peach &nbsp;
-                <input id = "chkPeach" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.Peach)" />
-            </td>
-            </tr></table>
-            <br />
-            <table>
-                <td>
-                    Percent to sale:&nbsp;
-                        <input id="percentOnChain" type="number" max="100" value="100" onchange="document.getElementById('lblOnChainSale').textContent =parseInt((percentOnChain.value*@walletConfig.OnChainFiatBalance)/100)" />
-                </td><td width="25" />                        
-                <td>
-                    <label id="lblOnChainSale">@walletConfig.OnChainBalance</label>&nbsp; @walletConfig.FiatCurrency
-                </td><td width="25" /> 
-                <td><button id="btOnChainSearch" class="btn btn-primary">Search</button></td>
-            </table><br />
-            <div id="container-B2pOnChain"></div>
-        }
+        <nav id="SectionNav">
+            <div class="nav">
+                <a id="SectionNav-1" class="nav-link active" href="#" onclick="SwitchTab(1)">On Chain</a>
+                <a id="SectionNav-2" class="nav-link" href="#" onclick="SwitchTab(2)">Lightning</a>
+            </div>
+        </nav>
 
-        @if (walletConfig.OnChainBalance > 0)
-        {
-            <script type="text/javascript">
-                $(document).ready(function () {
-                    $("#btOnChainSearch").click(function () {
+        <div id="tabOnChain">
+            <h4>On Chain</h4>
+            @if (walletConfig.OnChainEnabled)
+            {
+                <p><b>Balance</b>: @walletConfig.OnChainBalance BTC  - @walletConfig.OnChainFiatBalance @walletConfig.FiatCurrency</p>
+            }
+            else
+            {
+                <p>On Chain wallet not configured</p>
+            }
+
+            @if (walletConfig.OnChainBalance == 100) {
+                <p>No bitcoins available for sale</p>
+            } else {
+                <b>Select providers:</b><br/>
+                <table><tr>
+                <td>
+                    HodlHodl &nbsp;
+                    <input id="chkHodl" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.HodlHodl)" />
+                </td><td width="15" />
+                <td>
+                    Paxful &nbsp;
+                    <input id="chkPxf" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.Paxful)" />
+                </td><td width="15" />
+                <td>
+                    LocalCoinSwap &nbsp;
+                    <input id="chkLocalSw" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.LocalCoinSwap)" />
+                </td><td width="15" />
+                <td>
+                    Peach &nbsp;
+                    <input id="chkPeach" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.Peach)" />
+                </td>
+                </tr></table>
+                <br />
+                <table>
+                    <td>
+                        Percent to sale:&nbsp;
+                            <input id="percentOnChain" type="number" max="100" value="100" onchange="document.getElementById('lblOnChainSale').textContent =parseInt((percentOnChain.value*@walletConfig.OnChainFiatBalance)/100)" />
+                    </td><td width="25" />                        
+                    <td>
+                        <label id="lblOnChainSale">@walletConfig.OnChainBalance</label>&nbsp; @walletConfig.FiatCurrency
+                    </td><td width="25" />
+                    <td><button id="btOnChainSearch" class="btn btn-primary" onclick="OnChainSearchClick()">Search</button></td>
+                </table><br />
+                <div id="container-B2pOnChain"></div>
+            }
+
+            @if (walletConfig.OnChainBalance == 0) // > 0)
+            {
+                <script type="text/javascript">
+                    function OnChainSearchClick() {
                         var tbl = [];
-                        if (document.querySelector('#chkHodl').checked) tbl.push(@ProvidersEnum.HodlHodl);
-                        if (document.querySelector('#chkPxf').checked) tbl.push(@ProvidersEnum.Paxful);
-                        if (document.querySelector('#chkLocalSw').checked) tbl.push(@ProvidersEnum.LocalCoinSwap);
-                        if (document.querySelector('#chkPeach').checked) tbl.push(@ProvidersEnum.Peach);
+                        if (document.querySelector('#chkHodl').checked) tbl.push(@((short)ProvidersEnum.HodlHodl));
+                        if (document.querySelector('#chkPxf').checked) tbl.push(@((short)ProvidersEnum.Paxful));
+                        if (document.querySelector('#chkLocalSw').checked) tbl.push(@((short)ProvidersEnum.LocalCoinSwap));
+                        if (document.querySelector('#chkPeach').checked) tbl.push(@((short)ProvidersEnum.Peach));
                         if (tbl.length == 0) return;
 
                         const data = {
                             Rate: @walletConfig.Rate, ApiKey: '@Model.ApiKey', CurrencyCode: '@walletConfig.FiatCurrency',
                             Amount: @walletConfig.OnChainBalance, Providers: tbl
                         };
-                        GetPartial(data, "container-B2pOnChain");
+                        GetPartial(data, "#container-B2pOnChain");
+                    }
+                </script>
+            }
+        </div>
+
+        <div id="tabLightning" style="display:none">
+            <h4>Lightning</h4>
+            @if (walletConfig.OffChainEnabled)
+            {
+                <p><b>Balance</b>: @walletConfig.OffChainBalance BTC  - @walletConfig.OffChainFiatBalance @walletConfig.FiatCurrency</p>
+            }
+            else
+            {
+                <p>Lightning not configured</p>
+            }
+
+            @if (walletConfig.OffChainBalance == 0)
+            {
+                <p>No bitcoins available for sale</p>
+            }
+            else
+            {
+                <b>Select providers:</b><br />
+                <table>
+                    <tr>
+                        <td>
+                            LNp2pBot &nbsp;
+                            <input id="chkLNp2p" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.LNp2pBot)" />
+                        </td>
+                        <td width="15" />
+                        <td>
+                            RoboSats &nbsp;
+                            <input id="chkRbs" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.RoboSats)" />
+                        </td>
+                    </tr>
+                </table>
+                <br />
+                <table>
+                    <tr>
+                        <td>
+                            Percent to sale:&nbsp;
+                            <input id="percentLightning" type="number" max="100" value="100" onchange="document.getElementById('lblLightningToSale').textContent=parseInt((percentLightning.value*@walletConfig.OffChainFiatBalance)/100)" />
+                        </td>
+                        <td width="25" />
+                        <td>
+                            <label id="lblLightningToSale">@walletConfig.OffChainBalance</label>&nbsp;@walletConfig.FiatCurrency
+                        </td>
+                        <td width="25" />
+                        <td><button id="btLightningSearch" class="btn btn-primary">Search</button></td>
+                    </tr>
+                </table>
+
+                <br />
+                <div id="container-B2pLightning"></div>
+            }
+
+
+            @if (walletConfig.OffChainBalance > 0)
+            {
+                <script type="text/javascript">
+                    $(document).ready(function () {
+                        $("#btLightningSearch").click(function () {
+                            var tbl = [];
+                            if (document.querySelector('#chkLNp2p').checked) tbl.push(@((short)ProvidersEnum.LNp2pBot));
+                            if (document.querySelector('#chkRbs').checked) tbl.push(@((short)ProvidersEnum.RoboSats));
+                            if (tbl.length == 0) return;
+
+                            const data = {
+                                Rate: @walletConfig.Rate, ApiKey: '@Model.ApiKey', CurrencyCode: '@walletConfig.FiatCurrency',
+                                Amount: @walletConfig.OffChainBalance, Providers: tbl
+                            };
+                            GetPartial(data, "#container-B2pLightning");
+                        });
                     });
-                });
-            </script>
-        }
-        <br />
-
-        <h4>Lightning</h4>
-        @if (walletConfig.OffChainEnabled)
-        {
-            <p><b>Balance</b>: @walletConfig.OffChainBalance BTC  - @walletConfig.OffChainFiatBalance @walletConfig.FiatCurrency</p>
-        }
-        else
-        {
-            <p>Lightning not configured</p>
-        }
-
-        @if (walletConfig.OffChainBalance == 0)
-        {
-            <p>No bitcoins available for sale</p>
-        }
-        else
-        {
-            <b>Select providers:</b><br />
-            <table>
-                <tr>
-                    <td>
-                        LNp2pBot &nbsp;
-                        <input id="chkLNp2p" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.LNp2pBot)" />
-                    </td>
-                    <td width="15" />
-                    <td>
-                        RoboSats &nbsp;
-                        <input id="chkRbs" type="checkbox" checked="@Model.Providers.Contains(ProvidersEnum.RoboSats)" />
-                    </td>
-                </tr>
-            </table>
-            <br />
-            <table>
-                <tr>
-                    <td>
-                        Percent to sale:&nbsp;
-                        <input id="percentLightning" type="number" max="100" value="100" onchange="document.getElementById('lblLightningToSale').textContent=parseInt((percentLightning.value*@walletConfig.OffChainFiatBalance)/100)" />
-                    </td>
-                    <td width="25" />
-                    <td>
-                        <label id="lblLightningToSale">@walletConfig.OffChainBalance</label>&nbsp;@walletConfig.FiatCurrency
-                    </td>
-                    <td width="25" />
-                    <td><button id="btLightningSearch" class="btn btn-primary">Search</button></td>
-                </tr>
-            </table>
-
-            <br />
-            <div id="container-B2pLightning"></div>
-        }
-
-
-        @if (walletConfig.OffChainBalance > 0)
-        {
-            <script type="text/javascript">
-                $(document).ready(function () {
-                    $("#btLightningSearch").click(function () {
-                        var tbl = [];
-                        if (document.querySelector('#chkLNp2p').checked) tbl.push(@ProvidersEnum.LNp2pBot);
-                        if (document.querySelector('#chkRbs').checked) tbl.push(@ProvidersEnum.RoboSats);
-                        if (tbl.length == 0) return;
-
-                        const data = {
-                            Rate: @walletConfig.Rate, ApiKey: '@Model.ApiKey', CurrencyCode: '@walletConfig.FiatCurrency',
-                            Amount: @walletConfig.OffChainBalance, Providers: tbl
-                        };
-                        GetPartial(data, "container-B2pLightning");
-                    });
-                });
-            </script>
-        }
-
+                </script>
+            }
+        </div>
     }
 
 </div>

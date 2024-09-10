@@ -53,12 +53,13 @@ public class B2PCentralPluginService
         _storeRepository = storeRepository;
         _logger = logger;
         context = _pluginDbContextFactory.CreateContext();
-        _httpClient = httpClient;
         _networkProvider = networkProvider;
         _paymentMethodHandlerDictionary = paymentMethodHandlerDictionary;
         _walletProvider = walletProvider;
         _lightningClientFactory = lightningClientFactory;
         _lightningNetworkOptions = lightningNetworkOptions;
+        _httpClient = httpClient;
+        _httpClient.BaseAddress = new Uri("https://api.b2p-central.com/api/");
     }
 
     public async Task<string> TestB2P(B2PSettings settings)
@@ -197,7 +198,6 @@ public class B2PCentralPluginService
     {
         try
         {
-            _httpClient.BaseAddress = new Uri("https://api.b2p-central.com/api/");
             var reqJson = JsonConvert.SerializeObject(req, Formatting.None);
             
             var webRequest = new HttpRequestMessage(HttpMethod.Post, "Offers")
