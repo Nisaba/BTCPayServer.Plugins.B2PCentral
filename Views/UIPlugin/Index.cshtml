@@ -11,8 +11,9 @@
 }
 
 <script type="text/javascript">
-    function GetPartial(reqData, container) {
+    function GetPartial(reqData, container, bt) {
         $(container).html('<div style="display: flex; justify-content: center;"><img src="/Resources/img/Loading_icon.gif"/></div>');
+        $(bt).hide();
         $.ajax({
             url: 'b2pcentral/GetPartialB2PResult',
             type: 'POST',
@@ -20,9 +21,11 @@
             data: JSON.stringify(reqData),
             success: function(result) {
                 $(container).html(result);
+                $(bt).show();
             },
             error: function (xhr, status, error) {
                 $(container).html("Error: " + error + "<br/>" + xhr.responseText);
+                $(bt).show();
             }
         });
     }
@@ -37,6 +40,7 @@
             $("#tabLightning").show();
         }
     }
+
 </script>
 
 <table><tr>
@@ -103,8 +107,8 @@
 
         <nav id="SectionNav">
             <div class="nav">
-                <a id="SectionNav-1" class="nav-link active" href="#" onclick="SwitchTab(1)">On Chain</a>
-                <a id="SectionNav-2" class="nav-link" href="#" onclick="SwitchTab(2)">Lightning</a>
+                <a id="SectionNav-1" class="nav-link active" href="#SectionNav" onclick="SwitchTab(1)">On Chain</a>
+                <a id="SectionNav-2" class="nav-link" href="#SectionNav" onclick="SwitchTab(2)">Lightning</a>
             </div>
         </nav>
 
@@ -170,7 +174,7 @@
                             Rate: @walletConfig.Rate, ApiKey: '@Model.ApiKey', CurrencyCode: '@walletConfig.FiatCurrency',
                             Amount: @walletConfig.OnChainBalance, Providers: tbl
                         };
-                        GetPartial(data, "#container-B2pOnChain");
+                        GetPartial(data, "#container-B2pOnChain", "#btOnChainSearch");
                     }
                 </script>
             }
@@ -219,7 +223,7 @@
                             <label id="lblLightningToSale">@walletConfig.OffChainBalance</label>&nbsp;@walletConfig.FiatCurrency
                         </td>
                         <td width="25" />
-                        <td><button id="btLightningSearch" class="btn btn-primary">Search</button></td>
+                        <td><button id="btLightningSearch" class="btn btn-primary" onclick="LightningSearchClick()">Search</button></td>
                     </tr>
                 </table>
 
@@ -231,20 +235,18 @@
             @if (walletConfig.OffChainBalance > 0)
             {
                 <script type="text/javascript">
-                    $(document).ready(function () {
-                        $("#btLightningSearch").click(function () {
-                            var tbl = [];
-                            if (document.querySelector('#chkLNp2p').checked) tbl.push(@((short)ProvidersEnum.LNp2pBot));
-                            if (document.querySelector('#chkRbs').checked) tbl.push(@((short)ProvidersEnum.RoboSats));
-                            if (tbl.length == 0) return;
+                    function LightningSearchClick() {
+                        var tbl = [];
+                        if (document.querySelector('#chkLNp2p').checked) tbl.push(@((short)ProvidersEnum.LNp2pBot));
+                        if (document.querySelector('#chkRbs').checked) tbl.push(@((short)ProvidersEnum.RoboSats));
+                        if (tbl.length == 0) return;
 
-                            const data = {
-                                Rate: @walletConfig.Rate, ApiKey: '@Model.ApiKey', CurrencyCode: '@walletConfig.FiatCurrency',
-                                Amount: @walletConfig.OffChainBalance, Providers: tbl
-                            };
-                            GetPartial(data, "#container-B2pLightning");
-                        });
-                    });
+                        const data = {
+                            Rate: @walletConfig.Rate, ApiKey: '@Model.ApiKey', CurrencyCode: '@walletConfig.FiatCurrency',
+                            Amount: @walletConfig.OffChainBalance, Providers: tbl
+                        };
+                        GetPartial(data, "#container-B2pLightning", "#btLightningSearch");
+                    }
                 </script>
             }
         </div>

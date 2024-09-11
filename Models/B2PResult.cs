@@ -6,12 +6,9 @@ namespace BTCPayServer.Plugins.B2PCentral.Models
 {
     public class B2PResult: BasePagingViewModel
     {
-        public B2PResult()
-        { 
-            Rate = 1;
-        }
+        private decimal _rate;
 
-        public decimal Rate { get; set; }
+        public decimal Rate { get { return _rate; } set { _rate = value == 0 ? 1 : value; } }
         public string ErrorMsg { get; set; }
 
         public List<B2POffer> Offers { get; set; }

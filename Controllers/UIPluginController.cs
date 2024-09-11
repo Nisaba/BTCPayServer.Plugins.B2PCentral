@@ -8,6 +8,7 @@ using BTCPayServer.Plugins.B2PCentral.Models;
 using BTCPayServer.Plugins.B2PCentral.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Ocsp;
 
 namespace BTCPayServer.Plugins.B2PCentral;
 
@@ -73,7 +74,8 @@ public class UIPluginController : Controller
                 Providers = req.Providers
             };
             model.Offers = await _PluginService.GetOffersListAsync(ofrReq, req.ApiKey);
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             model.ErrorMsg = ex.Message;
         }
