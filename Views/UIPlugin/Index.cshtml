@@ -11,6 +11,10 @@
 }
 
 <script type="text/javascript">
+    var tblOfrs = [];
+    var tblOfrsOnChain = [];
+    var tblOfrsLightning = [];
+
     function GetPartial(reqData, container, bt) {
         $(container).html('<div style="display: flex; justify-content: center;"><img src="/Resources/img/Loading_icon.gif"/></div>');
         $(bt).hide();
@@ -20,7 +24,22 @@
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(reqData),
             success: function(result) {
+                tblOfrs = [];
                 $(container).html(result);
+                $("[id^='sortLink']").each(function () {
+                    var $this = $(this);
+                    if (!$._data(this, "events") || !$._data(this, "events").click) {
+                        $this.on("click", function (event) {
+                            event.preventDefault();
+                            var param1 = $(this).data('param1');
+                            if (tblOfrs.length == 0) {
+                                var param2Str = $(this).attr('data-param2');
+                                tblOfrs = JSON.parse(param2Str);
+                            }
+                            SortHtmlTable(param1);
+                        });
+                    }
+                });
                 $(bt).show();
             },
             error: function (xhr, status, error) {
@@ -29,15 +48,62 @@
             }
         });
     }
+
+    function SortHtmlTable(currentID) {
+        var table, rows, switching, i, xTbl1, xTbl2, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("offers" + currentID);
+        switching = true;
+        dir = "asc";
+
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+            for (i = 1; i < (rows.length - 2); i += 2) {
+                shouldSwitch = false;
+                xTbl1 = (i - 1) / 2;
+                xTbl2 = xTbl1 + 1;
+                if (dir == "asc") {
+                    if (tblOfrs[xTbl1] > tblOfrs[xTbl2]) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (tblOfrs[xTbl1] < tblOfrs[xTbl2]) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 2], rows[i]);
+                rows[i].parentNode.insertBefore(rows[i + 3], rows[i + 1]);
+                var v = tblOfrs[xTbl1];
+                tblOfrs[xTbl1] = tblOfrs[xTbl2];
+                tblOfrs[xTbl2] = v;
+                switching = true;
+                switchcount++;
+            } else {
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+
     function SwitchTab(switchValue) {
         if (switchValue === 1) {
             $("#SectionNav-1").addClass("active").siblings().removeClass("active");
             $("#tabOnChain").show();
             $("#tabLightning").hide();
+            tblOfrsLightning = tblOfrs;
+            tblOfrs = tblOfrsOnChain;
         } else {
             $("#SectionNav-2").addClass("active").siblings().removeClass("active");
             $("#tabOnChain").hide();
             $("#tabLightning").show();
+            tblOfrsOnChain = tblOfrs;
+            tblOfrs = tblOfrsLightning;
         }
     }
 
@@ -123,7 +189,7 @@
                 <p>On Chain wallet not configured</p>
             }
 
-            @if (walletConfig.OnChainBalance == 100) {
+            @if (walletConfig.OnChainBalance == 0) {
                 <p>No bitcoins available for sale</p>
             } else {
                 <b>Select providers:</b><br/>
@@ -159,7 +225,7 @@
                 <div id="container-B2pOnChain"></div>
             }
 
-            @if (walletConfig.OnChainBalance == 0) // > 0)
+            @if (walletConfig.OnChainBalance > 0)
             {
                 <script type="text/javascript">
                     function OnChainSearchClick() {

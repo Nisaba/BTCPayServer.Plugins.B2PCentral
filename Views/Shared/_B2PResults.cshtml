@@ -10,7 +10,6 @@
 @if (Model.Offers.Any())
 {
     var currentID = RandomNumberGenerator.GetInt32(10000);
-    <script type="text/javascript" src="~/Resources/js/SortHtmlTable.js"></script>
     <div class="table-responsive">
         <table id="offers@(currentID)" class="table table-hover mass-action">
             <thead class="mass-action-head">
@@ -19,7 +18,7 @@
                     <th class="text-nowrap">Provider</th>
                     <th class="text-nowrap">Country</th>
                     <th class="amount-col">
-                        <a class="text-nowrap" href="javascript:SortHtmlTable(@(currentID), {@String.Join(',',Model.Offers.Select(a => a.Price))});">
+                        <a class="text-nowrap" href="#" id="sortLink@(currentID)" data-param1="@(currentID)" data-param2='[@String.Join(", ", Model.Offers.Select(a => a.Price))]'>
                             Price
                             <span class="fa fa-sort" />
                         </a>
@@ -88,6 +87,5 @@
         </table>
     </div>
 
-    <vc:pager view-model="Model" />
-
+    <!--<vc:pager view-model="Model" />-->
 }

@@ -57,10 +57,5 @@
 
   <ItemGroup>
     <None Remove="Resources\img\B2Plogo.jpg" />
-    <None Remove="resources\js\SortHtmlTable.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Resources\js\" />
   </ItemGroup>
 </Project>
